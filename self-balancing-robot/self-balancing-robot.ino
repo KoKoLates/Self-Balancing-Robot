@@ -20,26 +20,20 @@ int16_t ACC_Y, ACC_Z, GYRO_X;
 volatile int motorPower, gyroRate;
 volatile float accAngle, gyroAngle, currentAngle, prevAngle = 0;
 volatile float error, prevError = 0, errorSum = 0;
-volatile byte count = 0;
 
-void setMotor(int LMSpeed, int RMSpeed){
+void setMotor(int MSpeed){
   cli();
-  LMSpeed = constrain(LMSpeed, -255, 255);
-  RMSpeed = constrain(RMSpeed, -255, 255);
-  if(LMSpeed >= 0) {
-    analogWrite(LMotor_PWM, LMSpeed);
+  MSpeed = constrain(MSpeed, -255, 255);
+  if(MSpeed >= 0){
+    analogWrite(LMotor_PWM, MSpeed);
     digitalWrite(LMotor_DIG, LOW);
-  }
-  else {
-    analogWrite(LMotor_PWM, 255 + LMSpeed);
-    digitalWrite(LMotor_DIG, HIGH);
-  }
-  if(RMSpeed >= 0) {
-    analogWrite(RMotor_PWM, RMSpeed);
+    analogWrite(RMotor_PWM, MSpeed);
     digitalWrite(RMotor_DIG, LOW);
   }
-  else {
-    analogWrite(RMotor_PWM, 255 + RMSpeed);
+  else{
+    analogWrite(LMotor_PWM, 255 + MSpeed);
+    digitalWrite(LMotor_DIG, HIGH);
+    analogWrite(RMotor_PWM, 255 + MSpeed);
     digitalWrite(RMotor_DIG, HIGH);
   }
   sei();
@@ -83,9 +77,10 @@ void loop() {
   // get the acceleration and gyroscope values
   ACC_Y = mpu.getAccelerationY();
   ACC_Z = mpu.getAccelerationZ();
-  GYRO_X = mpu.getRotationX();  
-
-  setMotor(motorPower, motorPower);
+  GYRO_X = mpu.getRotationX();
+  
+  setMotor(motorPower);
+  Serial.println(currentAngle);
 }
 
 ISR(TIMER1_COMPA_vect){
