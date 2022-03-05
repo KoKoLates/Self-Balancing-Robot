@@ -8,11 +8,11 @@
 # define LMotor_DIG 6
 # define LMotor_PWM 7
 
-# define Kp 40
-# define Ki 40
-# define Kd 0.01
+# define Kp 38
+# define Ki 100
+# define Kd 0.2
 # define sampleTime 0.005
-# define targetAngle 0.5
+# define targetAngle 1.5
 
 MPU6050 mpu;
 
@@ -23,6 +23,9 @@ volatile float error, prevError = 0, errorSum = 0;
 volatile byte count = 0;
 
 void setMotor(int LMSpeed, int RMSpeed){
+  cli();
+  LMSpeed = constrain(LMSpeed, -255, 255);
+  RMSpeed = constrain(RMSpeed, -255, 255);
   if(LMSpeed >= 0) {
     analogWrite(LMotor_PWM, LMSpeed);
     digitalWrite(LMotor_DIG, LOW);
@@ -38,7 +41,8 @@ void setMotor(int LMSpeed, int RMSpeed){
   else {
     analogWrite(RMotor_PWM, 255 + RMSpeed);
     digitalWrite(RMotor_DIG, HIGH);
-  }  
+  }
+  sei();
 }
 
 void setTimer(){
@@ -81,7 +85,6 @@ void loop() {
   ACC_Z = mpu.getAccelerationZ();
   GYRO_X = mpu.getRotationX();  
 
-  motorPower = constrain(motorPower, -255, 255);
   setMotor(motorPower, motorPower);
 }
 
@@ -95,6 +98,6 @@ ISR(TIMER1_COMPA_vect){
   errorSum = errorSum + error;  
   errorSum = constrain(errorSum, -300, 300);
   //calculate output from P, I and D values
-  motorPower = Kp*(error) + Ki*(errorSum)*sampleTime - Kd*(currentAngle-prevAngle)/sampleTime;
+  motorPower = Kp*(error) + Ki*(errorSum)*sampleTime + Kd*(currentAngle-prevAngle)/sampleTime;
   prevAngle = currentAngle;
 }
