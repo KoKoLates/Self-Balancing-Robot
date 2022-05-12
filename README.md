@@ -16,4 +16,4 @@ Side project of self balancing robot that using PID control with Arduino nano an
 
 ## Profile
 ![image](./img/robot-1.jpg)
-!(image](./img/robot-2.jpg)
+![image](./img/robot-2.jpg)
